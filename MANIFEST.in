@@ -6,10 +6,11 @@ include heat_jeos/jeos/F16-i386-cfntools.tdl
 include heat_jeos/jeos/F17-i386-cfntools.tdl
 include heat_jeos/jeos/F18-i386-cfntools.tdl
 include heat_jeos/jeos/F16-x86_64-cfntools.tdl
-include heat_jeos/jeos/F16-x86_64-cfntools-openshift.tdl
 include heat_jeos/jeos/F17-x86_64-cfntools.tdl
 include heat_jeos/jeos/F18-x86_64-cfntools.tdl
 include heat_jeos/jeos/U10-amd64-cfntools.tdl
 include heat_jeos/jeos/U12.10-i386-cfntools.tdl
 include heat_jeos/jeos/U12.10-amd64-cfntools.tdl
+include heat_jeos/jeos/F18-x86_64-openshift-origin-broker-cfntools.tdl
+include heat_jeos/jeos/F18-x86_64-openshift-origin-node-cfntools.tdl
 graft docs

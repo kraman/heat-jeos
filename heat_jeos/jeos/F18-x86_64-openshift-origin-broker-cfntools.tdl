@@ -1,0 +1,93 @@
+<template>
+  <name>F18-x86_64-openshift-origin-broker-cfntools</name>
+  <os>
+    <name>Fedora</name>
+    <version>18</version>
+    <arch>x86_64</arch>
+    <install type='iso'>
+      <iso>file:/var/lib/libvirt/images/Fedora-18-x86_64-DVD.iso</iso>
+    </install>
+  </os>
+  <description>OpenShift Origin Broker</description>
+  <files>
+    <file name='/etc/yum.repos.d/puppetlabs-products.repo'>
+[puppetlabs-products]
+name=Puppet Labs Products Fedora 17 - $basearch
+baseurl=http://yum.puppetlabs.com/fedora/f17/products/$basearch
+gpgkey=http://yum.puppetlabs.com/RPM-GPG-KEY-puppetlabs
+exclude=mcollective*,facter*
+enabled=0
+gpgcheck=1
+    </file>
+    <file name='/etc/yum.repos.d/openshift-origin.repo'>
+[openshift-origin]
+name=openshift-origin
+baseurl="https://mirror.openshift.com/pub/openshift-origin/nightly/fedora-18/latest/x86_64/"
+enabled=1
+gpgcheck=0
+    </file>
+    <file name='/etc/yum.repos.d/openshift-origin-deps.repo'>
+[openshift-origin-deps]
+name=openshift-origin-deps
+baseurl="https://mirror.openshift.com/pub/openshift-origin/fedora-18/x86_64/"
+enabled=1
+gpgcheck=0
+    </file>
+  </files> 
+  <commands>
+    <command name='packages'><![CDATA[
+yum -y update fedora-release;
+yum -y install yum-plugin-fastestmirror cloud-init python-psutil python-pip python-boto;
+yum -y update;
+sed --in-place -e s/Type=oneshot/"Type=oneshot\nTimeoutSec=0"/ /lib/systemd/system/cloud-final.service ;
+pip-python install heat-cfntools ;
+cfn-create-aws-symlinks --source /usr/bin ;
+
+yum install -y --enablerepo puppetlabs-products puppet;
+yum install -y  --skip-broken openshift-origin-broker rubygem-openshift-origin-msg-broker-mcollective rubygem-openshift-origin-dns-nsupdate;
+yum install -y  --skip-broken rubygem-openshift-origin-dns-bind rubygem-openshift-origin-controller openshift-origin-broker-util; 
+yum install -y  --skip-broken rubygem-passenger mod_passenger openssh rubygem-openshift-origin-auth-mongo rubygem-openshift-origin-remote-user ;
+yum install -y  --skip-broken rubygem-openshift-origin-dns-avahi rubygem-openshift-origin-console openshift-origin-console mongodb mongodb-server;
+yum install -y  --skip-broken bind bind-utils ntpdate ntp policycoreutils mcollective httpd openssh-server rhc activemq activemq-client git ruby;
+yum install -y  --skip-broken ruby-irb ruby-libs tar bind yum-plugin-priorities mysql-devel mongodb-devel ruby-devel pstree;
+yum install -y  --skip-broken mysql-devel mongodb-devel rubygem-passenger openssh mod_passenger rubygem-actionmailer rubygem-actionpack;
+yum install -y  --skip-broken rubygem-activemodel rubygem-activerecord rubygem-activeresource rubygem-activesupport rubygem-arel rubygem-bigdecimal;
+yum install -y  --skip-broken rubygem-bson rubygem-bson_ext rubygem-builder rubygem-bundler rubygem-cucumber rubygem-diff-lcs rubygem-dnsruby;
+yum install -y  --skip-broken rubygem-erubis rubygem-gherkin rubygem-hike rubygem-i18n rubygem-journey rubygem-json rubygem-mail rubygem-metaclass;
+yum install -y  --skip-broken rubygem-mime-types rubygem-mocha rubygem-mongo rubygem-cucumber rubygem-multi_json rubygem-netrc rubygem-open4;
+yum install -y  --skip-broken rubygem-parseconfig rubygem-polyglot rubygem-rack rubygem-rack-cache rubygem-rack-ssl rubygem-rack-test rubygem-rails;
+yum install -y  --skip-broken rubygem-railties rubygem-rake rubygem-rdoc rubygem-regin rubygem-rest-client rubygem-simplecov rubygem-simplecov-html;
+yum install -y  --skip-broken rubygem-sprockets rubygem-state_machine rubygem-stomp rubygem-systemu rubygem-term-ansicolor rubygem-thor rubygem-tilt;
+yum insatll -y  --skip-broken rubygem-treetop rubygem-tzinfo rubygem-xml-simple rubygem-webmock rubygem-fakefs gcc make rubygem-coffee-rails;
+yum install -y  --skip-broken rubygem-compass-rails rubygem-uglifier rubygem-therubyracer vim;
+
+gem install mysql;
+gem install mongoid --version 3.0.21;
+gem install moped --version 1.3.2;
+gem install origin --version 1.0.11;
+gem install minitest --version 3.2.0;
+gem install rdiscount --version 1.6.8;
+gem install formtastic --version 1.2.4;
+gem install net-http-persistent --version 2.7;
+gem install haml --version 3.1.7;
+
+puppet module install openshift/openshift_origin;
+
+semanage -i - <<_EOF
+boolean -m --on httpd_run_stickshift
+boolean -m --on httpd_verify_dns
+boolean -m --on allow_ypbind
+boolean -m --on httpd_can_network_connect
+boolean -m --on httpd_can_network_relay
+boolean -m --on httpd_read_user_content
+boolean -m --on httpd_enable_homedirs
+boolean -m --on httpd_execmem
+boolean -m --on named_write_master_zones
+_EOF
+]]>
+    </command>
+    <command name='firewall'>
+systemctl disable firewalld.service
+    </command>
+  </commands>
+</template>

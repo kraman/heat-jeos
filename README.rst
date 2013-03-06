@@ -17,7 +17,7 @@ If you'd like to run from the master branch, you can clone the git repo:
     git://github.com/sdake/heat-jeos.git
 
 Follow the steps:
-https://github.com/heat-api/heat/wiki/HeatGettingStarted
+https://github.com/openstack/heat/blob/master/docs/GettingStarted.rst
 
 Related projects
 ----------------
